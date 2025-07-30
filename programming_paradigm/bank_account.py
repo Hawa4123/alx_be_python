@@ -4,17 +4,24 @@ class BankAccount:
     BALANCE_FILE = "balance.txt"
 
     def __init__(self, initial_balance=0):
+        
         self.__account_balance = self._load_balance(initial_balance)
 
     def _load_balance(self, default_balance):
         if os.path.exists(self.BALANCE_FILE):
             with open(self.BALANCE_FILE, "r") as file:
-                return float(file.read())
+                content = file.read().strip()  
+                try:
+                    return float(content)
+                except ValueError:
+                    
+                    return default_balance
         return default_balance
 
     def _save_balance(self):
         with open(self.BALANCE_FILE, "w") as file:
-            file.write(str(self.__account_balance))
+            
+            file.write(f"{self.__account_balance:.2f}")
 
     def deposit(self, amount):
         if amount > 0:
@@ -35,4 +42,8 @@ class BankAccount:
             return False
 
     def display_balance(self):
-        print(f"Current Balance: ${self.__account_balance}")
+        
+        print(f"Current Balance: ${self.__account_balance:.2f}")
+
+
+
