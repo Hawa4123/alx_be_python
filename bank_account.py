@@ -1,49 +1,28 @@
-import os
+import sys
+from bank_account import BankAccount
 
-class BankAccount:
-    BALANCE_FILE = "balance.txt"
+def main():
+    account = BankAccount(250)  
+    if len(sys.argv) < 2:
+        print("Usage: python main-0.py <command>:<amount>")
+        print("Commands: deposit, withdraw, display")
+        sys.exit(1)
 
-    def __init__(self, initial_balance=0):
-        
-        self.__account_balance = self._load_balance(initial_balance)
+    command, *params = sys.argv[1].split(':')
+    amount = float(params[0]) if params else None
 
-    def _load_balance(self, default_balance):
-        if os.path.exists(self.BALANCE_FILE):
-            with open(self.BALANCE_FILE, "r") as file:
-                content = file.read().strip()  
-                try:
-                    return float(content)
-                except ValueError:
-                    
-                    return default_balance
-        return default_balance
-
-    def _save_balance(self):
-        with open(self.BALANCE_FILE, "w") as file:
-            
-            file.write(f"{self.__account_balance:.2f}")
-
-    def deposit(self, amount):
-        if amount > 0:
-            self.__account_balance += amount
-            self._save_balance()
+    if command == "deposit" and amount is not None:
+        account.deposit(amount)
+        print(f"Deposited: ${amount}")
+    elif command == "withdraw" and amount is not None:
+        if account.withdraw(amount):
+            print(f"Withdrew: ${amount}")
         else:
-            print("Deposit amount must be positive.")
+            print("Insufficient funds.")
+    elif command == "display":
+        account.display_balance()
+    else:
+        print("Invalid command.")
 
-    def withdraw(self, amount):
-        if amount <= 0:
-            print("Withdrawal amount must be positive.")
-            return False
-        if amount <= self.__account_balance:
-            self.__account_balance -= amount
-            self._save_balance()
-            return True
-        else:
-            return False
-
-    def display_balance(self):
-        
-        print(f"Current Balance: ${self.__account_balance:.2f}")
-
-
-
+if __name__ == "__main__":
+    main()
