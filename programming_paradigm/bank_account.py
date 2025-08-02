@@ -1,28 +1,34 @@
-import sys
-from bank_account import BankAccount
+import os
 
-def main():
-    account = BankAccount(250)  
-    if len(sys.argv) < 2:
-        print("Usage: python main-0.py <command>:<amount>")
-        print("Commands: deposit, withdraw, display")
-        sys.exit(1)
+class BankAccount:
+    BALANCE_FILE = "balance.txt"
 
-    command, *params = sys.argv[1].split(':')
-    amount = float(params[0]) if params else None
+    def __init__(self, initial_balance=250):
+        
+        self.__account_balance = initial_balance
+        self._save_balance()
 
-    if command == "deposit" and amount is not None:
-        account.deposit(amount)
-        print(f"Deposited: ${amount}")
-    elif command == "withdraw" and amount is not None:
-        if account.withdraw(amount):
-            print(f"Withdrew: ${amount}")
+    def _save_balance(self):
+        with open(self.BALANCE_FILE, "w") as file:
+            file.write(f"{self.__account_balance:.2f}")
+
+    def deposit(self, amount):
+        if amount > 0:
+            self.__account_balance += amount
+            self._save_balance()
         else:
-            print("Insufficient funds.")
-    elif command == "display":
-        account.display_balance()
-    else:
-        print("Invalid command.")
+            print("Deposit amount must be positive.")
 
-if __name__ == "__main__":
-    main()
+    def withdraw(self, amount):
+        if amount <= 0:
+            print("Withdrawal amount must be positive.")
+            return False
+        if amount <= self.__account_balance:
+            self.__account_balance -= amount
+            self._save_balance()
+            return True
+        else:
+            return False
+
+    def display_balance(self):
+        print(f"Current Balance: ${self.__account_balance:.2f}")
